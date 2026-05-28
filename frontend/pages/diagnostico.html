@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Diagnóstico IA</title>
+
+  <link rel="stylesheet" href="../styles/base.css">
+  <link rel="stylesheet" href="../styles/layout.css">
+</head>
+
+<body onload="initProtection(['especialista'])">
+
+  <div class="header">
+    <img id="userImage">
+    <span id="userName"></span>
+    <small id="userRole"></small>
+  </div>
+
+  <div class="content">
+
+    <h1>Diagnóstico por IA</h1>
+
+    <input type="file" id="imageInput">
+
+    <div id="preview"></div>
+
+    <button onclick="analizar()">Analizar Imagen</button>
+
+    <div id="resultado"></div>
+
+  </div>
+
+  <script src="../scripts/core/proteccion.js"></script>
+  <script src="../scripts/ui/layout.js"></script>
+  <script src="../scripts/modules/diagnostico.js"></script>
+  <script src="../scripts/modules/ia.js"></script>
+
+</body>
+</html>

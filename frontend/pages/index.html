@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>HealthNet v2 - Login</title>
+  <link rel="stylesheet" href="../styles/login.css">
+</head>
+
+<body>
+
+  <div class="login-container">
+
+    <div class="login-card">
+
+      <img src="../assets/images/logos/logo.png" class="logo">
+
+      <h2>Sistema Hospitalario HealthNet v2</h2>
+
+      <input type="email" id="email" placeholder="Correo institucional">
+      <input type="password" id="password" placeholder="Contraseña">
+
+      <button onclick="handleLogin()">Ingresar</button>
+
+      <p id="error"></p>
+
+    </div>
+
+  </div>
+
+  <!-- ⚠️ ORDEN CORRECTO -->
+  <script src="../scripts/core/router.js"></script>
+  <script src="../scripts/core/auth.js"></script>
+
+  <script>
+    async function handleLogin() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const res = await login(email, password);
+
+      if (!res || !res.ok) {
+        document.getElementById("error").innerText =
+          "Credenciales inválidas";
+      }
+    }
+  </script>
+
+</body>
+</html>

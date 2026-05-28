@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title>HealthNet Dashboard</title>
+
+  <link rel="stylesheet" href="../styles/base.css">
+  <link rel="stylesheet" href="../styles/layout.css">
+  <link rel="stylesheet" href="../styles/dashboard.css">
+</head>
+
+<body onload="initDashboard()">
+
+<!-- SIDEBAR -->
+<div id="sidebar" class="sidebar"></div>
+
+<!-- HEADER -->
+<header class="header">
+
+  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+
+  <div class="user-info">
+    <h3 id="userName">Usuario</h3>
+    <small id="userRole">Rol</small>
+  </div>
+
+  <img id="userAvatar" class="avatar">
+
+  <button class="logout-btn" onclick="logout()">Salir</button>
+
+</header>
+
+<!-- CONTENT -->
+<main class="content">
+
+  <h1>Dashboard Clínico</h1>
+
+  <div class="cards">
+
+    <div class="card">
+      <h3>Pacientes</h3>
+      <p id="totalPacientes">0</p>
+    </div>
+
+    <div class="card">
+      <h3>Doctores</h3>
+      <p id="totalDoctores">0</p>
+    </div>
+
+    <div class="card">
+      <h3>Especialistas</h3>
+      <p id="totalEspecialistas">0</p>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- SCRIPTS -->
+<script src="../scripts/core/session.js"></script>
+<script src="../scripts/ui/sidebar.js"></script>
+<script src="../scripts/modules/dashboard.js"></script>
+
+</body>
+</html>

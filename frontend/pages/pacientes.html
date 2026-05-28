@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pacientes</title>
+
+  <link rel="stylesheet" href="../styles/base.css">
+  <link rel="stylesheet" href="../styles/layout.css">
+</head>
+
+<body onload="initProtection(['admin','doctor'])">
+
+  <div class="sidebar">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="pacientes.html">Pacientes</a>
+    <a href="diagnostico.html">Diagnóstico</a>
+    <a href="historial.html">Historial</a>
+  </div>
+
+  <div class="header">
+    <img id="userImage">
+    <span id="userName"></span>
+    <small id="userRole"></small>
+  </div>
+
+  <div class="content">
+
+    <h1>Gestión de Pacientes</h1>
+
+    <input type="text" placeholder="Buscar paciente...">
+
+    <div id="pacientesList"></div>
+
+  </div>
+
+  <script src="../scripts/core/proteccion.js"></script>
+  <script src="../scripts/ui/layout.js"></script>
+  <script src="../scripts/modules/pacientes.js"></script>
+
+</body>
+</html>
