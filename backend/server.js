@@ -1,41 +1,60 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-require("dotenv").config();
 
-const app = express(); // ✅ PRIMERO SIEMPRE
+const app = express();
 
 // ======================
-// MIDDLEWARE BASE
+// MIDDLEWARE
 // ======================
 app.use(cors());
 app.use(express.json());
 
 // ======================
-// SERVIR FRONTEND
+// FRONTEND
 // ======================
 app.use(express.static(path.join(__dirname, "../frontend")));
 
 // ======================
-// TEST ROOT
+// TEST
 // ======================
 app.get("/", (req, res) => {
   res.json({
     ok: true,
-    message: "HealthNet v2 backend funcionando correctamente"
+    message: "HealthNet v2 funcionando correctamente"
   });
 });
 
 // ======================
-// RUTAS
+// ROUTES
 // ======================
 const authRoutes = require("./routes/auth.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
 const diagnosisRoutes = require("./routes/diagnosis.routes");
+const patientRoutes = require("./routes/patient.routes");
+const alertsRoutes = require("./routes/alerts.routes");
 
+// API
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/diagnosis", diagnosisRoutes);
+app.use("/api/patients", patientRoutes);
+app.use("/api/alerts", alertsRoutes);
+
+// ======================
+// ERROR HANDLER GLOBAL
+// ======================
+app.use((err, req, res, next) => {
+  console.error("🔥 ERROR GLOBAL:", err);
+
+  res.status(500).json({
+    ok: false,
+    message: "Error interno del servidor",
+    error: err.message
+  });
+});
 
 // ======================
 // START SERVER

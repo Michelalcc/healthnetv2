@@ -1,5 +1,8 @@
 async function login(email, password) {
   try {
+
+    localStorage.clear();
+
     const res = await fetch("http://localhost:3000/api/auth/login", {
       method: "POST",
       headers: {
@@ -8,23 +11,30 @@ async function login(email, password) {
       body: JSON.stringify({ email, password })
     });
 
+    if (!res.ok) {
+      return { ok: false, message: "Error servidor" };
+    }
+
     const data = await res.json();
 
-    console.log("LOGIN RESPONSE:", data);
-
-    if (!data || !data.ok || !data.user) {
-      return { ok: false };
+    if (!data || !data.ok || !data.token || !data.user) {
+      return { ok: false, message: "Credenciales inválidas" };
     }
 
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data.user));
 
-    redirectByRole(data.user.rol);
+    console.log("TOKEN:", data.token);
 
-    return { ok: true };
+    return {
+      ok: true,
+      user: data.user
+    };
 
   } catch (error) {
-    console.error("Error login:", error);
-    return { ok: false };
+    console.error("LOGIN ERROR:", error);
+    return { ok: false, message: "Error conexión" };
   }
 }
+
+window.login = login;

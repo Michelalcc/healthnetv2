@@ -1,51 +1,225 @@
-body {
-  margin: 0;
-  font-family: Arial;
-  background: #f4f6f9;
-}
-
-/* SIDEBAR */
+/* =========================
+   SIDEBAR
+========================= */
 .sidebar {
   position: fixed;
-  left: -260px;
   top: 0;
-  width: 260px;
-  height: 100vh;
-  background: #0f172a;
-  color: white;
-  transition: 0.3s;
-  padding: 20px;
-}
-
-.sidebar.active {
   left: 0;
+
+  width: 270px;
+  height: 100vh;
+
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(18px);
+
+  padding: 20px;
+
+  transform: translateX(0);
+  transition: 0.3s ease;
+
+  z-index: 1000;
+
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.4);
+
+  overflow-y: auto; /* 🔥 FIX SCROLL */
 }
 
-.sidebar a {
-  display: block;
-  color: white;
-  padding: 10px;
-  text-decoration: none;
+/* OCULTO */
+.sidebar.hidden {
+  transform: translateX(-100%);
 }
 
-/* HEADER */
-.header {
+/* =========================
+   LOGO
+========================= */
+.sidebar-logo {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background: white;
-  padding: 15px;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.avatar {
+.sidebar-logo img {
   width: 45px;
   height: 45px;
   border-radius: 50%;
 }
 
+/* =========================
+   USER SIDEBAR
+========================= */
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 12px;
+
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+
+  margin-bottom: 20px;
+}
+
+.sidebar-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* =========================
+   LINKS
+========================= */
+.sidebar-links a {
+  display: block;
+
+  padding: 12px;
+  margin-bottom: 8px;
+
+  border-radius: 10px;
+
+  transition: all 0.25s ease;
+}
+
+/* HOVER */
+.sidebar-links a:hover {
+  background: #2563eb;
+  transform: translateX(5px);
+}
+
+/* 🔥 LINK ACTIVO */
+.sidebar-links a.active {
+  background: #1d4ed8;
+  font-weight: bold;
+}
+
+/* =========================
+   FOOTER
+========================= */
+.sidebar-footer {
+  margin-top: 20px;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 12px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #dc2626;
+  color: white;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: #ef4444;
+}
+
+/* =========================
+   TOPBAR
+========================= */
+.topbar {
+  height: 70px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 0 20px;
+
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(10px);
+
+  margin-left: 270px;
+  transition: 0.3s ease;
+
+  will-change: margin-left;
+}
+
+/* FULL WIDTH */
+body.sidebar-hidden .topbar {
+  margin-left: 0;
+}
+
+/* =========================
+   USER TOPBAR
+========================= */
+.topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar-user img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* =========================
+   CONTENT
+========================= */
+.content {
+  margin-left: 270px;
+  padding: 20px;
+
+  transition: 0.3s ease;
+
+  will-change: margin-left;
+}
+
+/* FULL WIDTH CONTENT */
+body.sidebar-hidden .content {
+  margin-left: 0;
+}
+
+/* =========================
+   CARDS
+========================= */
+.card {
+  background: rgba(255,255,255,0.05);
+  padding: 20px;
+  border-radius: 14px;
+
+  transition: 0.2s ease;
+}
+
+.card:hover {
+  transform: scale(1.02);
+}
+
+/* =========================
+   MENU BUTTON
+========================= */
 .menu-btn {
-  font-size: 22px;
   background: none;
   border: none;
+
+  font-size: 22px;
+  color: white;
+
   cursor: pointer;
+}
+
+/* =========================
+   RESPONSIVE (BÁSICO PRO)
+========================= */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 220px;
+  }
+
+  .topbar {
+    margin-left: 0;
+  }
+
+  .content {
+    margin-left: 0;
+  }
 }

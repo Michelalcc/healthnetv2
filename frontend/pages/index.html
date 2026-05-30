@@ -9,7 +9,6 @@
 <body>
 
   <div class="login-container">
-
     <div class="login-card">
 
       <img src="../assets/images/logos/logo.png" class="logo">
@@ -19,30 +18,79 @@
       <input type="email" id="email" placeholder="Correo institucional">
       <input type="password" id="password" placeholder="Contraseña">
 
-      <button onclick="handleLogin()">Ingresar</button>
+      <button id="loginBtn" onclick="handleLogin()">Ingresar</button>
 
       <p id="error"></p>
 
     </div>
-
   </div>
 
-  <!-- ⚠️ ORDEN CORRECTO -->
+  <!-- SCRIPTS -->
   <script src="../scripts/core/router.js"></script>
   <script src="../scripts/core/auth.js"></script>
 
   <script>
+    // 🔐 Ejecutar guardia cuando DOM esté listo
+    document.addEventListener("DOMContentLoaded", () => {
+      routeGuard();
+    });
+
+    // 🔥 LOGIN PRINCIPAL
     async function handleLogin() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
 
-      const res = await login(email, password);
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const errorEl = document.getElementById("error");
+      const btn = document.getElementById("loginBtn");
 
-      if (!res || !res.ok) {
-        document.getElementById("error").innerText =
-          "Credenciales inválidas";
+      errorEl.innerText = "";
+
+      if (!email || !password) {
+        errorEl.innerText = "Completa todos los campos";
+        return;
+      }
+
+      try {
+
+        // 🔒 bloquear botón (evita múltiples requests)
+        btn.disabled = true;
+        btn.innerText = "Ingresando...";
+
+        const res = await login(email, password);
+
+        if (!res || !res.ok) {
+          errorEl.innerText = res?.message || "Credenciales inválidas";
+          btn.disabled = false;
+          btn.innerText = "Ingresar";
+          return;
+        }
+
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          errorEl.innerText = "Error guardando sesión";
+          btn.disabled = false;
+          btn.innerText = "Ingresar";
+          return;
+        }
+
+        // 🧭 redirección segura
+        redirectByRole(res.user.rol);
+
+      } catch (err) {
+        console.error("ERROR LOGIN FLOW:", err);
+        errorEl.innerText = "Error de conexión con servidor";
+        btn.disabled = false;
+        btn.innerText = "Ingresar";
       }
     }
+
+    // 🔥 SOPORTE ENTER (PRO UX)
+    document.addEventListener("keypress", function(e) {
+      if (e.key === "Enter") {
+        handleLogin();
+      }
+    });
   </script>
 
 </body>

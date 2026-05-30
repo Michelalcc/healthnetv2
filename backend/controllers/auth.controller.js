@@ -1,9 +1,11 @@
+
 const pool = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const login = async (req, res) => {
   try {
+
     const { email, password } = req.body;
 
     const userResult = await pool.query(
@@ -12,7 +14,10 @@ const login = async (req, res) => {
     );
 
     if (userResult.rows.length === 0) {
-      return res.json({ ok: false, message: "Usuario no existe" });
+      return res.status(401).json({
+        ok: false,
+        message: "Usuario no existe"
+      });
     }
 
     const user = userResult.rows[0];
@@ -20,30 +25,43 @@ const login = async (req, res) => {
     const validPassword = await bcrypt.compare(password, user.password);
 
     if (!validPassword) {
-      return res.json({ ok: false, message: "Password incorrecta" });
+      return res.status(401).json({
+        ok: false,
+        message: "Password incorrecta"
+      });
     }
 
+    // 🧠 NORMALIZAR ROL (CLAVE PARA TU ERROR)
+    const role = (user.rol || "").toLowerCase().trim();
+
     const token = jwt.sign(
-      { id: user.id, rol: user.rol },
-      process.env.JWT_SECRET || "secret",
+      {
+        id: user.id,
+        rol: role,
+        hospital_id: user.hospital_id || null
+      },
+      process.env.JWT_SECRET,
       { expiresIn: "8h" }
     );
 
-    res.json({
+    return res.json({
       ok: true,
       token,
       user: {
         id: user.id,
         nombre: user.nombre,
         email: user.email,
-        rol: user.rol,
-        hospital_id: user.hospital_id
+        rol: role,
+        hospital_id: user.hospital_id || null
       }
     });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ ok: false, message: "Error servidor" });
+    return res.status(500).json({
+      ok: false,
+      message: "Error servidor"
+    });
   }
 };
 
