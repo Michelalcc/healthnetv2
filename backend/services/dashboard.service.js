@@ -1,23 +1,55 @@
 const pool = require("../config/db");
 
-const getStats = async () => {
-  const pacientes = await pool.query("SELECT COUNT(*) FROM pacientes");
+// ==========================
+// DASHBOARD ADMIN
+// ==========================
+const getAdminStats = async () => {
+  const pacientes = await pool.query("SELECT COUNT(*) FROM patients");
 
-  const doctores = await pool.query(
-    "SELECT COUNT(*) FROM usuarios WHERE rol = 'doctor'"
-  );
+  const diagnosticos = await pool.query("SELECT COUNT(*) FROM diagnosticos");
 
-  const especialistas = await pool.query(
-    "SELECT COUNT(*) FROM usuarios WHERE rol = 'especialista'"
-  );
+  const criticos = await pool.query(`
+    SELECT COUNT(*) FROM diagnosticos
+    WHERE resultado = 'alto'
+  `);
 
   return {
-    pacientes: pacientes.rows[0].count,
-    doctores: doctores.rows[0].count,
-    especialistas: especialistas.rows[0].count
+    pacientes: parseInt(pacientes.rows[0].count),
+    diagnosticos: parseInt(diagnosticos.rows[0].count),
+    criticos: parseInt(criticos.rows[0].count)
+  };
+};
+
+// ==========================
+// DASHBOARD POR HOSPITAL
+// ==========================
+const getHospitalStats = async (hospital_id) => {
+
+  const pacientes = await pool.query(
+    "SELECT COUNT(*) FROM patients WHERE hospital_id = $1",
+    [hospital_id]
+  );
+
+  const diagnosticos = await pool.query(`
+    SELECT COUNT(*) FROM diagnosticos d
+    JOIN patients p ON d.paciente_id = p.id
+    WHERE p.hospital_id = $1
+  `, [hospital_id]);
+
+  const criticos = await pool.query(`
+    SELECT COUNT(*) FROM diagnosticos d
+    JOIN patients p ON d.paciente_id = p.id
+    WHERE p.hospital_id = $1 AND d.resultado = 'alto'
+  `, [hospital_id]);
+
+  return {
+    pacientes: parseInt(pacientes.rows[0].count),
+    diagnosticos: parseInt(diagnosticos.rows[0].count),
+    criticos: parseInt(criticos.rows[0].count)
   };
 };
 
 module.exports = {
-  getStats
+  getAdminStats,
+  getHospitalStats
 };

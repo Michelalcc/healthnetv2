@@ -76,8 +76,32 @@ const getAllPatients = async () => {
   }
 };
 
+// ==========================
+// OBTENER POR ID
+// ==========================
+const getPatientById = async (id) => {
+  const result = await pool.query(
+    "SELECT * FROM patients WHERE id = $1",
+    [id]
+  );
+  return result.rows[0];
+};
+
+// ==========================
+// OBTENER POR ID + HOSPITAL
+// ==========================
+const getPatientByIdAndHospital = async (id, hospital_id) => {
+  const result = await pool.query(
+    "SELECT * FROM patients WHERE id = $1 AND hospital_id = $2",
+    [id, hospital_id]
+  );
+  return result.rows[0];
+};
+
 module.exports = {
   createPatient,
+  getPatientById,
+  getPatientByIdAndHospital,
   getPatientsByHospital,
   getAllPatients
 };

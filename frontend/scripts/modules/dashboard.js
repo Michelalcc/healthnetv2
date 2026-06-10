@@ -1,19 +1,18 @@
-
-let dashboardInterval = null;
-let alertsInterval = null;
-
-// ======================
-// INIT DASHBOARD
-// ======================
 function initDashboard() {
 
-  const user = JSON.parse(localStorage.getItem("user"));
   const token = localStorage.getItem("token");
+  const userRaw = localStorage.getItem("user");
 
-  // 🔴 VALIDACIÓN REAL DE SESIÓN
-  if (!user || !token) {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+  if (!token || !userRaw) {
+    window.location.href = "/pages/index.html";
+    return;
+  }
+
+  let user;
+  try {
+    user = JSON.parse(userRaw);
+  } catch {
+    localStorage.clear();
     window.location.href = "/pages/index.html";
     return;
   }
@@ -21,130 +20,69 @@ function initDashboard() {
   loadUser(user);
   loadDashboard(token);
   loadAlerts(token);
-
-  // 🧹 evitar duplicados
-  if (dashboardInterval) clearInterval(dashboardInterval);
-  if (alertsInterval) clearInterval(alertsInterval);
-
-  dashboardInterval = setInterval(() => loadDashboard(token), 5000);
-  alertsInterval = setInterval(() => loadAlerts(token), 7000);
 }
 
-// ======================
-// USER INFO
 // ======================
 function loadUser(user) {
 
-  if (!user) return;
-
-  document.getElementById("userName").innerText = user.nombre || "Usuario";
-  document.getElementById("userRole").innerText = user.rol || "";
+  document.getElementById("userName").innerText = user.nombre;
+  document.getElementById("userRole").innerText = user.rol;
 
   const avatar = document.querySelector(".sidebar-avatar");
 
+  const avatars = {
+    admin: "admin.png",
+    doctor: "doctor1.png",
+    especialista: "doctor2.png"
+  };
+
   if (avatar) {
-    if (user.rol === "admin") {
-      avatar.src = "../assets/images/users/admin.png";
-    } else if (user.rol === "doctor") {
-      avatar.src = "../assets/images/users/doctor1.png";
-    } else if (user.rol === "especialista") {
-      avatar.src = "../assets/images/users/doctor2.png";
-    }
+    avatar.src = `../assets/images/users/${avatars[user.rol] || "doctor1.png"}`;
   }
 }
 
-// ======================
-// DASHBOARD DATA
 // ======================
 async function loadDashboard(token) {
 
-  try {
-
-    const res = await fetch("http://localhost:3000/api/dashboard", {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + token
-      }
-    });
-
-    if (!res.ok) {
-
-      if (res.status === 401) {
-        console.warn("Sesión expirada");
-        localStorage.clear();
-        window.location.href = "/pages/index.html";
-        return;
-      }
-
-      console.warn("Dashboard error HTTP:", res.status);
-      return;
+  const res = await fetch("http://localhost:3000/api/dashboard", {
+    headers: {
+      Authorization: "Bearer " + token
     }
+  });
 
-    const data = await res.json();
+  if (!res.ok) return;
 
-    if (!data.ok) return;
+  const data = await res.json();
 
-    const patientsEl = document.getElementById("kpiPatients");
-    const diagEl = document.getElementById("kpiDiagnoses");
-    const critEl = document.getElementById("kpiCritical");
+  if (!data.ok) return;
 
-    if (patientsEl) patientsEl.innerText = data.data?.pacientes || 0;
-    if (diagEl) diagEl.innerText = data.data?.diagnosticos || 0;
-    if (critEl) critEl.innerText = data.data?.criticos || 0;
-
-  } catch (err) {
-    console.error("dashboard error:", err);
-  }
+  document.getElementById("kpiPatients").innerText = data.data.pacientes;
+  document.getElementById("kpiDiagnoses").innerText = data.data.diagnosticos;
+  document.getElementById("kpiCritical").innerText = data.data.criticos;
 }
 
 // ======================
-// ALERTAS MÉDICAS
-// ======================
 async function loadAlerts(token) {
 
-  try {
-
-    const res = await fetch("http://localhost:3000/api/alerts", {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + token
-      }
-    });
-
-    if (!res.ok) {
-
-      console.warn("Alerts HTTP error:", res.status);
-
-      const box = document.getElementById("alertsBox");
-      if (box) box.innerHTML = `<div class="activity-item">Sin alertas</div>`;
-      return;
+  const res = await fetch("http://localhost:3000/api/alerts", {
+    headers: {
+      Authorization: "Bearer " + token
     }
+  });
 
-    const data = await res.json();
+  const box = document.getElementById("alertsBox");
+  if (!box) return;
 
-    const box = document.getElementById("alertsBox");
-
-    if (!box) return;
-
-    if (!data.ok || !Array.isArray(data.data)) {
-      box.innerHTML = `<div class="activity-item">Sin alertas</div>`;
-      return;
-    }
-
-    if (data.data.length === 0) {
-      box.innerHTML = `<div class="activity-item">Sin alertas activas</div>`;
-      return;
-    }
-
-    box.innerHTML = data.data.map(a => `
-      <div class="activity-item ${a.level || 'low'}">
-        ${a.message || "Alerta"}
-      </div>
-    `).join("");
-
-  } catch (err) {
-    console.error("alerts error:", err);
+  if (!res.ok) {
+    box.innerHTML = "Sin alertas";
+    return;
   }
+
+  const data = await res.json();
+
+  box.innerHTML = data.data.map(a =>
+    `<div class="activity-item">${a.message}</div>`
+  ).join("");
 }
 
 window.initDashboard = initDashboard;

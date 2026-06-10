@@ -8,6 +8,18 @@ body {
   background-position: center;
   background-attachment: fixed;
 }
+:root {
+  --primary-color: #3b82f6;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+}
+
+.sidebar {
+  background-color: var(--primary-color);
+}
+
 
 * {
   box-sizing: border-box;

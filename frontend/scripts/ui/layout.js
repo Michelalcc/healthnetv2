@@ -1,22 +1,20 @@
+// ==============================
+// LAYOUT ENTERPRISE CORE
+// ==============================
 
-// ======================
-// SIDEBAR TOGGLE PRO
-// ======================
 function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
-
   if (!sidebar) return;
 
   document.body.classList.toggle("sidebar-hidden");
   sidebar.classList.toggle("hidden");
 
-  // sincronizar UI completa
   syncLayout();
 }
 
-// ======================
-// SINCRONIZAR LAYOUT
-// ======================
+// ==============================
+// SYNC LAYOUT RESPONSIVE
+// ==============================
 function syncLayout() {
   const isHidden = document.body.classList.contains("sidebar-hidden");
 
@@ -32,42 +30,118 @@ function syncLayout() {
   }
 }
 
-// ======================
-// LOGOUT REAL
-// ======================
+// ==============================
+// 🎨 HOSPITAL THEME ENGINE
+// ==============================
+function applyHospitalTheme(hospitalId) {
+  const root = document.documentElement;
 
+  const themes = {
+    1: {
+      primary: "#22c55e", // verde suave
+    },
+    2: {
+      primary: "#3b82f6", // azul clínico
+    },
+    3: {
+      primary: "#facc15" // amarillo controlado
+    }
+  };
+
+  const theme = themes[hospitalId] || themes[2];
+
+  root.style.setProperty("--primary-color", theme.primary);
+}
+
+// ==============================
+// 👤 TOPBAR USER RENDER
+// ==============================
+function loadTopbarUser() {
+  const userRaw = localStorage.getItem("user");
+
+  if (!userRaw) return;
+
+  let user;
+  try {
+    user = JSON.parse(userRaw);
+  } catch (e) {
+    console.warn("Usuario inválido");
+    return;
+  }
+
+  const nameEl = document.getElementById("topUserName");
+  const roleEl = document.getElementById("topUserRole");
+  const avatarEl = document.getElementById("topAvatar");
+
+  if (nameEl) nameEl.innerText = user.nombre || "Usuario";
+  if (roleEl) roleEl.innerText = (user.rol || "").toUpperCase();
+
+  if (avatarEl) {
+    const avatars = {
+      admin: "../assets/images/users/admin.png",
+      doctor: "../assets/images/users/doctor1.png",
+      especialista: "../assets/images/users/doctor2.png"
+    };
+
+    avatarEl.src = avatars[user.rol] || "../assets/images/users/default.png";
+  }
+
+  // 🏥 aplicar hospital theme
+  applyHospitalTheme(user.hospital_id);
+}
+
+// ==============================
+// 🚪 LOGOUT ENTERPRISE
+// ==============================
 function logout() {
-  console.log("Logging out...");
-
-  // 🧹 limpiar TODO
   localStorage.removeItem("token");
   localStorage.removeItem("user");
 
-  // reset visual state
   document.body.classList.remove("sidebar-hidden");
 
-  // redirección limpia
   window.location.href = "/pages/index.html";
 }
 
-// export global
-window.logout = logout;
-
-// ======================
-// INIT LAYOUT (IMPORTANTE)
-// ======================
+// ==============================
+// INIT LAYOUT ENTERPRISE
+// ==============================
 function initLayout() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const token = localStorage.getItem("token");
+  const userRaw = localStorage.getItem("user");
 
-  if (!user) {
+  if (!token || !userRaw) {
     window.location.href = "/pages/index.html";
     return;
   }
 
+  let user;
+
+  try {
+    user = JSON.parse(userRaw);
+  } catch {
+    localStorage.clear();
+    window.location.href = "/pages/index.html";
+    return;
+  }
+
+  if (!user?.rol) {
+    window.location.href = "/pages/index.html";
+    return;
+  }
+
+  // 🔥 aplicar hospital SIEMPRE
+  applyHospitalTheme(user.hospital_id);
+
   syncLayout();
+  loadTopbarUser();
 }
 
-// export global
+// ==============================
+// GLOBAL EXPORTS
+// ==============================
 window.toggleSidebar = toggleSidebar;
-window.logout = logout;
+window.syncLayout = syncLayout;
+window.loadTopbarUser = loadTopbarUser;
 window.initLayout = initLayout;
+window.logout = logout;
+window.applyHospitalTheme = applyHospitalTheme;

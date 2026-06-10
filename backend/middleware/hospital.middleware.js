@@ -1,15 +1,13 @@
 module.exports = (req, res, next) => {
   try {
-    const user = req.user;
-
-    if (!user) {
+    if (!req.user) {
       return res.status(401).json({
         ok: false,
         message: "Usuario no autenticado"
       });
     }
 
-    const { rol, hospital_id } = user;
+    const { rol, hospital_id } = req.user;
 
     // =========================
     // ADMIN: acceso total
@@ -22,13 +20,16 @@ module.exports = (req, res, next) => {
     // DOCTOR / ESPECIALISTA
     // =========================
     if (rol === "doctor" || rol === "especialista") {
-      
+
       if (!hospital_id) {
         return res.status(403).json({
           ok: false,
           message: "Usuario sin hospital asignado"
         });
       }
+
+      // 🔥 CLAVE: FORZAR hospital_id
+      req.hospital_id = hospital_id;
 
       return next();
     }
@@ -38,12 +39,10 @@ module.exports = (req, res, next) => {
     // =========================
     return res.status(403).json({
       ok: false,
-      message: "Rol no autorizado en sistema clínico"
+      message: "Rol no autorizado"
     });
 
   } catch (error) {
-    console.error("Hospital middleware error:", error);
-
     return res.status(500).json({
       ok: false,
       message: "Error en validación hospitalaria"

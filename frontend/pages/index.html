@@ -26,16 +26,29 @@
   </div>
 
   <!-- SCRIPTS -->
+  <script src="../scripts/core/session.js"></script>
   <script src="../scripts/core/router.js"></script>
   <script src="../scripts/core/auth.js"></script>
 
   <script>
-    // 🔐 Ejecutar guardia cuando DOM esté listo
+    // 🔐 evitar acceso si ya hay sesión activa
     document.addEventListener("DOMContentLoaded", () => {
-      routeGuard();
+      const token = localStorage.getItem("token");
+      const userRaw = localStorage.getItem("user");
+
+      if (token && userRaw) {
+        try {
+          const user = JSON.parse(userRaw);
+          redirectByRole(user.rol);
+        } catch (e) {
+          localStorage.clear();
+        }
+      }
     });
 
-    // 🔥 LOGIN PRINCIPAL
+    // =========================
+    // LOGIN PRINCIPAL (FINAL)
+    // =========================
     async function handleLogin() {
 
       const email = document.getElementById("email").value.trim();
@@ -52,7 +65,7 @@
 
       try {
 
-        // 🔒 bloquear botón (evita múltiples requests)
+        // UX: bloquear botón
         btn.disabled = true;
         btn.innerText = "Ingresando...";
 
@@ -65,32 +78,26 @@
           return;
         }
 
-        const token = localStorage.getItem("token");
+        // 🔥 OBLIGATORIO: validar storage real
+        const user = JSON.parse(localStorage.getItem("user"));
 
-        if (!token) {
-          errorEl.innerText = "Error guardando sesión";
+        if (!user || !user.rol) {
+          errorEl.innerText = "Error de sesión";
           btn.disabled = false;
           btn.innerText = "Ingresar";
           return;
         }
 
-        // 🧭 redirección segura
-        redirectByRole(res.user.rol);
+        // 🧭 redirección segura (SIN setTimeout innecesario)
+        redirectByRole(user.rol);
 
       } catch (err) {
-        console.error("ERROR LOGIN FLOW:", err);
-        errorEl.innerText = "Error de conexión con servidor";
+        console.error("LOGIN ERROR:", err);
+        errorEl.innerText = "Error de conexión";
         btn.disabled = false;
         btn.innerText = "Ingresar";
       }
     }
-
-    // 🔥 SOPORTE ENTER (PRO UX)
-    document.addEventListener("keypress", function(e) {
-      if (e.key === "Enter") {
-        handleLogin();
-      }
-    });
   </script>
 
 </body>

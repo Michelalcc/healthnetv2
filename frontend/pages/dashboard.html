@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="../styles/dashboard.css">
 </head>
 
-<body onload="initDashboard(); initLayout(); routeGuard();">
+<body>
 
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
@@ -19,7 +19,6 @@
       <h3>HealthNet</h3>
     </div>
 
-    <!-- USER SIDEBAR -->
     <div class="sidebar-user">
       <img class="sidebar-avatar" src="">
       <div>
@@ -28,7 +27,6 @@
       </div>
     </div>
 
-    <!-- LINKS -->
     <div class="sidebar-links">
       <a href="dashboard.html">Dashboard</a>
       <a href="pacientes.html">Pacientes</a>
@@ -39,7 +37,6 @@
       <a href="reportes.html">Reportes</a>
     </div>
 
-    <!-- FOOTER -->
     <div class="sidebar-footer">
       <button onclick="logout()" class="logout-btn">
         Cerrar sesión
@@ -57,23 +54,20 @@
       <h2>Dashboard Clínico</h2>
     </div>
 
-    <!-- USER TOPBAR -->
-    <div class="topbar-user">
-      <img id="topAvatar" src="">
-      <div>
-        <p id="topUserName">Usuario</p>
-        <small id="topUserRole">ROL</small>
-      </div>
-    </div>
+<div class="topbar-user">
+  <img id="topAvatar" src="" alt="avatar">
+  <div>
+    <p id="topUserName">Usuario</p>
+    <small id="topUserRole">ROL</small>
+  </div>
+</div>
 
   </header>
 
   <!-- CONTENT -->
   <main class="content" id="content">
 
-    <!-- KPIs -->
     <section class="grid">
-
       <div class="card kpi">
         <h3>Pacientes</h3>
         <p id="kpiPatients">0</p>
@@ -88,12 +82,9 @@
         <h3>Críticos</h3>
         <p id="kpiCritical">0</p>
       </div>
-
     </section>
 
-    <!-- PANEL CLÍNICO -->
     <section class="grid">
-
       <div class="card">
         <h3>Actividad reciente</h3>
         <div id="activityFeed"></div>
@@ -104,15 +95,21 @@
         <p>Hospital activo: <b id="hospitalName">General</b></p>
         <p>Usuarios conectados: 12</p>
       </div>
-
     </section>
 
   </main>
-
-  <!-- SCRIPTS -->
+<script src="../scripts/core/session.js"></script>
   <script src="../scripts/core/router.js"></script>
   <script src="../scripts/ui/layout.js"></script>
   <script src="../scripts/modules/dashboard.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  routeGuard();
+  initLayout();
+  initDashboard();
+});
+</script>
 
 </body>
 </html>

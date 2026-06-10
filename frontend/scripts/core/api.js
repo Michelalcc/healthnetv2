@@ -1,11 +1,14 @@
 const API_URL = "http://localhost:3000/api";
 
-// Obtener token
 function getToken() {
   return localStorage.getItem("token");
 }
 
-// Request genérico
+function logoutAndRedirect() {
+  localStorage.clear();
+  window.location.href = "/pages/index.html";
+}
+
 async function request(endpoint, options = {}) {
   const token = getToken();
 
@@ -20,12 +23,18 @@ async function request(endpoint, options = {}) {
   try {
     const res = await fetch(`${API_URL}${endpoint}`, config);
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || "Error en la API");
+    if (res.status === 401) {
+      logoutAndRedirect(); // 🔥 clave
+      return;
     }
 
-    return await res.json();
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Error en API");
+    }
+
+    return data;
 
   } catch (err) {
     console.error("API ERROR:", err.message);
@@ -33,11 +42,11 @@ async function request(endpoint, options = {}) {
   }
 }
 
-// Métodos
 export const api = {
   get: (url) => request(url),
-  post: (url, data) => request(url, {
-    method: "POST",
-    body: JSON.stringify(data)
-  })
+  post: (url, data) =>
+    request(url, {
+      method: "POST",
+      body: JSON.stringify(data)
+    })
 };

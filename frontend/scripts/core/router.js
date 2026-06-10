@@ -1,18 +1,33 @@
-function redirectByRole(role) {
+// ======================
+// ROUTER ENTERPRISE FINAL
+// ======================
 
+// 🎯 MAPA DE RUTAS POR ROL
+function getRouteByRole(role) {
+  const routes = {
+    admin: "/pages/dashboard.html",
+    doctor: "/pages/dashboard.html",
+    especialista: "/pages/diagnostico.html"
+  };
+
+  return routes[role] || "/pages/dashboard.html";
+}
+
+// ======================
+// REDIRECCIÓN POR ROL
+// ======================
+function redirectByRole(role) {
   if (!role) {
     window.location.href = "/pages/index.html";
     return;
   }
 
-  role = role.toLowerCase().trim();
-
-  // 🔥 TODOS VAN A DASHBOARD (MEJOR UX)
-  window.location.href = "/pages/dashboard.html";
+  const cleanRole = role.toLowerCase().trim();
+  window.location.href = getRouteByRole(cleanRole);
 }
 
 // ======================
-// GUARDIA GLOBAL FINAL
+// GUARDIA GLOBAL ENTERPRISE
 // ======================
 function routeGuard() {
 
@@ -20,43 +35,92 @@ function routeGuard() {
   const userRaw = localStorage.getItem("user");
   const path = window.location.pathname;
 
-  // 🔴 bloquear SOLO si no hay sesión y no está en login
-  if ((!token || !userRaw) && !path.includes("index.html")) {
-    window.location.href = "/pages/index.html";
+  const isLoginPage = path.includes("index.html");
+
+  // ======================
+  // 1. SIN SESIÓN
+  // ======================
+  if (!token || !userRaw) {
+
+    // permitir acceso SOLO a login
+    if (!isLoginPage) {
+      window.location.href = "/pages/index.html";
+    }
+
     return;
   }
 
+  // ======================
+  // 2. VALIDAR USER JSON
+  // ======================
   let user;
 
   try {
-    user = JSON.parse(userRaw || "{}");
-  } catch (error) {
+    user = JSON.parse(userRaw);
+  } catch (e) {
+    console.warn("Usuario corrupto");
     localStorage.clear();
     window.location.href = "/pages/index.html";
     return;
   }
 
-  // 🧠 si está logueado y entra al login → mandarlo al dashboard
-  if (path.includes("index.html") && token && user?.rol) {
-    window.location.href = "/pages/dashboard.html";
+  const role = (user.rol || "").toLowerCase().trim();
+
+  // ======================
+  // 3. SI ESTÁ EN LOGIN → REDIRIGIR AL SISTEMA
+  // ======================
+  if (isLoginPage) {
+    redirectByRole(role);
     return;
   }
 
-  // 🔴 protección especialista
-  if (path.includes("diagnostico.html") && user.rol !== "especialista") {
-    window.location.href = "/pages/dashboard.html";
-    return;
+  // ======================
+  // 4. CONTROL DE ACCESO POR ROL
+  // ======================
+
+  const currentPage = path.split("/").pop();
+
+  // especialista SOLO diagnóstico
+  if (role === "especialista") {
+    if (currentPage !== "diagnostico.html") {
+      window.location.href = "/pages/diagnostico.html";
+      return;
+    }
   }
 
-  // 🔴 protección admin
-  if (
-    (path.includes("users.html") || path.includes("hospitales.html")) &&
-    user.rol !== "admin"
-  ) {
-    window.location.href = "/pages/dashboard.html";
+  // doctor y admin no deben entrar a páginas restringidas de especialista
+  if ((role === "doctor" || role === "admin")) {
+
+    if (currentPage === "diagnostico.html" && role !== "especialista") {
+      window.location.href = "/pages/dashboard.html";
+      return;
+    }
+  }
+
+  // ======================
+  // 5. SEGURIDAD EXTRA
+  // ======================
+
+  if (!["admin", "doctor", "especialista"].includes(role)) {
+    localStorage.clear();
+    window.location.href = "/pages/index.html";
     return;
   }
 }
 
+// ======================
+// LOGOUT GLOBAL
+// ======================
+function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+
+  window.location.href = "/pages/index.html";
+}
+
+// ======================
+// EXPORT GLOBAL
+// ======================
 window.redirectByRole = redirectByRole;
 window.routeGuard = routeGuard;
+window.logout = logout;

@@ -1,39 +1,52 @@
 const service = require("../services/patient.service");
 
 // ==========================
-// CREAR PACIENTE (FASE 2 PRO)
+// CREAR PACIENTE
 // ==========================
 const createPatient = async (req, res) => {
   try {
     const { nombre, dni, edad, sexo, hospital_id: bodyHospital } = req.body;
 
-    const { id, rol, hospital_id: userHospital } = req.user;
+    const { id, rol } = req.user;
 
     // =========================
-    // REGLA: DOCTOR O ESPECIALISTA
+    // VALIDACIONES (CLAVE)
     // =========================
-    let hospital_id = userHospital;
-    const doctor_id = id;
-
-    // =========================
-    // ADMIN CONTROL TOTAL
-    // =========================
-    if (rol === "admin") {
-      hospital_id = bodyHospital || null;
-    }
-
-    // =========================
-    // BLOQUEO DE SEGURIDAD
-    // =========================
-    if (!hospital_id && rol !== "admin") {
+    if (!nombre || !dni || !edad || !sexo) {
       return res.status(400).json({
         ok: false,
-        message: "Hospital no asignado al usuario"
+        message: "Todos los campos son obligatorios"
+      });
+    }
+
+    if (edad <= 0) {
+      return res.status(400).json({
+        ok: false,
+        message: "Edad inválida"
       });
     }
 
     // =========================
-    // CREAR PACIENTE
+    // HOSPITAL CONTROLADO
+    // =========================
+    let hospital_id;
+
+    if (rol === "admin") {
+      if (!bodyHospital) {
+        return res.status(400).json({
+          ok: false,
+          message: "Admin debe especificar hospital_id"
+        });
+      }
+      hospital_id = bodyHospital;
+    } else {
+      hospital_id = req.hospital_id; // 🔥 seguro
+    }
+
+    const doctor_id = id;
+
+    // =========================
+    // CREAR
     // =========================
     const patient = await service.createPatient({
       nombre,
@@ -51,43 +64,26 @@ const createPatient = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("CREATE PATIENT ERROR:", error);
-
     return res.status(500).json({
       ok: false,
-      error: error.message
+      message: error.message
     });
   }
 };
 
 // ==========================
-// LISTAR PACIENTES (FASE 2 PRO)
+// LISTAR PACIENTES
 // ==========================
 const getPatients = async (req, res) => {
   try {
-    const { rol, hospital_id } = req.user;
+    const { rol } = req.user;
 
     let data;
 
-    // =========================
-    // ADMIN VE TODO EL SISTEMA
-    // =========================
     if (rol === "admin") {
       data = await service.getAllPatients();
-    }
-
-    // =========================
-    // OTROS ROLES FILTRADOS POR HOSPITAL
-    // =========================
-    else {
-      if (!hospital_id) {
-        return res.status(403).json({
-          ok: false,
-          message: "Usuario sin hospital asignado"
-        });
-      }
-
-      data = await service.getPatientsByHospital(hospital_id);
+    } else {
+      data = await service.getPatientsByHospital(req.hospital_id);
     }
 
     return res.json({
@@ -96,16 +92,51 @@ const getPatients = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("GET PATIENTS ERROR:", error);
-
     return res.status(500).json({
       ok: false,
-      error: error.message
+      message: error.message
+    });
+  }
+};
+
+// ==========================
+// OBTENER POR ID (OBLIGATORIO)
+// ==========================
+const getPatientById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rol } = req.user;
+
+    let patient;
+
+    if (rol === "admin") {
+      patient = await service.getPatientById(id);
+    } else {
+      patient = await service.getPatientByIdAndHospital(id, req.hospital_id);
+    }
+
+    if (!patient) {
+      return res.status(404).json({
+        ok: false,
+        message: "Paciente no encontrado"
+      });
+    }
+
+    return res.json({
+      ok: true,
+      data: patient
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      message: error.message
     });
   }
 };
 
 module.exports = {
   createPatient,
-  getPatients
+  getPatients,
+  getPatientById
 };

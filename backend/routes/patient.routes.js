@@ -11,6 +11,6 @@ const auth = require("../middleware/auth.middleware");
 router.post("/", auth, controller.createPatient);
 
 // LISTAR PACIENTES
-router.get("/", auth, controller.getPatients);
+router.get("/:id", auth, controller.getPatientById);
 
 module.exports = router;
