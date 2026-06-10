@@ -2,52 +2,153 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Diagnóstico IA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnóstico IA · HealthNet</title>
 
+  <!-- CSS -->
   <link rel="stylesheet" href="../styles/base.css">
   <link rel="stylesheet" href="../styles/layout.css">
+  <link rel="stylesheet" href="../styles/modules/diagnostico.css">
 </head>
 
-<body onload="initProtection(['especialista'])">
+<body>
 
-  <div class="header">
-    <img id="userImage">
-    <span id="userName"></span>
-    <small id="userRole"></small>
+  <!-- ======================
+       SIDEBAR
+  ====================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="profile">
+      <img id="userPhoto" src="../assets/images/users/doctor1.png">
+      <h3 id="userName">Usuario</h3>
+      <span id="userRole">ROL</span>
+    </div>
+
+    <nav>
+      <button onclick="location.href='dashboard.html'">Dashboard</button>
+      <button onclick="location.href='pacientes.html'">Pacientes</button>
+      <button onclick="location.href='diagnostico.html'">Diagnóstico</button>
+      <button onclick="location.href='historial.html'">Historial</button>
+      <button onclick="logout()">Cerrar sesión</button>
+    </nav>
+  </aside>
+
+  <!-- ======================
+       MAIN
+  ====================== -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <h1>Diagnóstico con IA</h1>
+      <p>Sistema clínico inteligente</p>
+    </header>
+
+    <!-- CONTENIDO -->
+    <section class="content">
+
+      <div class="grid">
+
+   <!-- IZQUIERDA -->
+<div class="card">
+
+  <h3>Imagen médica</h3>
+
+  <!-- INFO PACIENTE -->
+  <div id="patientInfo" class="patient-box">
+  <strong>Paciente:</strong> <span id="pNombre">—</span><br>
+  <span id="pDni">—</span>
+</div>
+
+  <!-- INPUT -->
+  <input type="file" id="imageInput" accept="image/*">
+
+  <!-- PREVIEW GRANDE -->
+  <div class="preview-box">
+    <img id="previewImg" class="preview-large" style="display:none;">
+    <div id="previewEmpty">Sube una imagen médica</div>
   </div>
 
-  <div class="content">
-
-    <h1>Diagnóstico por IA</h1>
-
-    <input type="file" id="imageInput">
-
-    <div id="preview"></div>
-
-    <button onclick="analizar()">Analizar Imagen</button>
-
-    <div id="resultado"></div>
-
+  <!-- BOTONES -->
+  <div class="actions">
+    <button id="btnAnalyze">Analizar con IA</button>
+    <button id="btnSave" disabled>Guardar diagnóstico</button>
   </div>
-  <button onclick="logout()" style="
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 8px;
-  background: #dc2626;
-  color: white;
-  cursor: pointer;
-">
-  Cerrar sesión
-</button>
 
-  <script src="../scripts/core/session.js"></script>
+</div>
+
+        <!-- ======================
+             DERECHA (IA)
+        ====================== -->
+        <div class="card">
+
+          <h3>Resultado IA</h3>
+
+          <div id="iaText" class="ia-text">—</div>
+
+          <!-- PROBABILIDAD -->
+          <div class="ia-bar-container">
+            <div class="ia-bar-bg">
+              <div id="iaBar" class="ia-bar"></div>
+            </div>
+            <span id="iaConf">0%</span>
+          </div>
+
+          <!-- NIVEL -->
+          <div id="iaLevel" class="ia-level">—</div>
+
+          <!-- RECOMENDACIÓN -->
+          <div id="iaReco" class="ia-reco">—</div>
+
+          <!-- SEMÁFORO -->
+          <div class="semaforo">
+            <div id="lightGreen" class="light"></div>
+            <div id="lightYellow" class="light"></div>
+            <div id="lightRed" class="light"></div>
+          </div>
+
+          <!-- FORM MÉDICO -->
+          <div class="extra">
+
+            <label>¿Fibromas detectados?</label>
+            <select id="fibromasSelect">
+              <option>No</option>
+              <option>Sí</option>
+            </select>
+
+            <label>Tipo de fibroma</label>
+            <select id="fibroType">
+              <option>Ninguno</option>
+              <option>Leve</option>
+              <option>Moderado</option>
+              <option>Grave</option>
+            </select>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+  </div>
+
+  <!-- ======================
+       SCRIPTS
+  ====================== -->
+
   <script src="../scripts/core/proteccion.js"></script>
   <script src="../scripts/ui/layout.js"></script>
-  <script src="../scripts/modules/diagnostico.js"></script>
-  <script src="../scripts/modules/ia.js"></script>
+
+  <!-- IMPORTANTE -->
+  <script type="module" src="../scripts/modules/diagnostico.js"></script>
+
+  <!-- INIT -->
+  <script>
+    window.onload = () => {
+      initProtection(['especialista']);
+      initLayout();
+    };
+  </script>
 
 </body>
 </html>

@@ -1,6 +1,6 @@
 import { api } from "./api.js";
 
-async function login(email, password) {
+export async function login(email, password) {
   try {
     localStorage.clear();
 
@@ -31,5 +31,3 @@ async function login(email, password) {
     };
   }
 }
-
-window.login = login;

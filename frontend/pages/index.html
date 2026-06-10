@@ -18,8 +18,7 @@
       <input type="email" id="email" placeholder="Correo institucional">
       <input type="password" id="password" placeholder="Contraseña">
 
-      <button id="loginBtn" onclick="handleLogin()">Ingresar</button>
-
+      <button onclick="handleLogin()">Ingresar</button> 
       <p id="error"></p>
 
     </div>
@@ -28,7 +27,22 @@
   <!-- SCRIPTS -->
   <script src="../scripts/core/session.js"></script>
   <script src="../scripts/core/router.js"></script>
-  <script src="../scripts/core/auth.js"></script>
+  <script type="module">
+  import { login } from "../scripts/core/auth.js";
+
+  window.handleLogin = async function () {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    const res = await login(email, password);
+
+    if (res.ok) {
+      window.location.href = "/pages/dashboard.html";
+    } else {
+      alert(res.message);
+    }
+  };
+</script>
 
   <script>
     // 🔐 evitar acceso si ya hay sesión activa
